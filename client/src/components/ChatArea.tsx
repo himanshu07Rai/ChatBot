@@ -29,9 +29,6 @@ export default function ChatArea() {
     "What are the applications of AI in daily life?",
     "What is the future of technology?",
     "How does machine learning work?",
-    "What is the impact of AI on the job market?",
-    "Can AI create art?",
-    "What are the ethical considerations of AI?",
   ];
 
   const updateChatHistory = () => {
@@ -106,53 +103,65 @@ export default function ChatArea() {
   };
 
   return (
-    <div className="max-w-md mx-auto p-4 bg-white rounded-lg shadow-md">
-      <h1 className="text-2xl font-bold text-center mb-4">Chat with AI</h1>
-      <div
-        className="overflow-y-auto max-h-96 mb-4 p-4 border border-gray-300 rounded-lg"
-        ref={messageAreaScrollRef}
-      >
-        {chatHistory.map((msg, index) => (
+    <div className="mx-auto p-4 bg-white rounded-lg shadow-md">
+      <h1 className="text-2xl font-bold text-center mb-4">Mock Chat with AI</h1>
+      <div className="flex flex-col lg:flex-row">
+        <div className="flex-1 lg:mr-4">
           <div
-            key={index}
-            className={`mb-2 flex ${
-              msg.type === "user" ? "justify-end" : "justify-start"
-            }`}
+            className="overflow-y-auto max-h-screen mb-4 p-4 border border-gray-300 rounded-lg"
+            ref={messageAreaScrollRef}
           >
-            <div
-              className={`${
-                msg.type === "user"
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 text-black"
-              } p-2 rounded-lg max-w-xs break-words`}
-            >
-              <ReactMarkdown>{msg.content}</ReactMarkdown>
-            </div>
+            {chatHistory.length > 0 ? (
+              chatHistory.map((msg, index) => (
+                <div
+                  key={index}
+                  className={`mb-2 flex ${
+                    msg.type === "user" ? "justify-end" : "justify-start"
+                  }`}
+                >
+                  <div
+                    className={`${
+                      msg.type === "user"
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-200 text-black"
+                    } p-2 rounded-lg max-w-xs break-words`}
+                  >
+                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-center">
+                Ask a question to start the conversation.
+              </p>
+            )}
           </div>
-        ))}
-      </div>
-      {isThinking && (
-        <div className="mb-4 p-2 border border-gray-300 rounded-md">
-          <p>AI is thinking...</p>
+          {isThinking && (
+            <div className="mb-4 p-2 border border-gray-300 rounded-md">
+              <p>AI is thinking...</p>
+            </div>
+          )}
+          {currentResponse && (
+            <div className="mb-4 p-2 border border-gray-300 rounded-md">
+              <ReactMarkdown>{currentResponse}</ReactMarkdown>
+            </div>
+          )}
         </div>
-      )}
-      {currentResponse && (
-        <div className="mb-4 p-2 border border-gray-300 rounded-md">
-          <ReactMarkdown>{currentResponse}</ReactMarkdown>
-        </div>
-      )}
-      <div className="mb-4">
-        <h2 className="text-lg font-semibold mb-2">Select a question:</h2>
-        <div className="space-y-2">
-          {questions.map((q, index) => (
-            <button
-              key={index}
-              onClick={() => handleQuestionClick(q)}
-              className="block w-full bg-gray-200 text-black p-2 rounded-md hover:bg-gray-300 transition duration-200"
-            >
-              {q}
-            </button>
-          ))}
+        <div className="lg:w-1/3">
+          {" "}
+          {/* Set a specific width for the question selection area */}
+          <h2 className="text-lg font-semibold mb-2">Select a question:</h2>
+          <div className="space-y-2">
+            {questions.map((q, index) => (
+              <button
+                key={index}
+                onClick={() => handleQuestionClick(q)}
+                className="block w-full bg-gray-200 text-black p-2 rounded-md hover:bg-gray-300 transition duration-200"
+              >
+                {q}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
