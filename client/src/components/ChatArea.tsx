@@ -12,6 +12,7 @@ export default function ChatArea() {
   const currentResponseRef = useRef<string>("");
   const messageAreaScrollRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const [userQuestion, setUserQuestion] = useState<string>("");
 
   useEffect(() => {
     if (messageAreaScrollRef.current) {
@@ -55,12 +56,13 @@ export default function ChatArea() {
     abortControllerRef.current = abortController;
 
     try {
-      const source = SSE("https://chat-bot-server-gamma.vercel.app/stream", {
+      const source = SSE("http://localhost:8000/stream", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           signal: abortControllerRef.current.signal,
         },
+        withCredentials: true,
         payload: JSON.stringify({ question }),
         signal: abortController.signal,
       });
@@ -74,7 +76,7 @@ export default function ChatArea() {
               break;
             case CHAT_RESPONSE_TYPES.AI_RESPONSE:
               setIsThinking(false);
-              currentResponseRef.current += data.message + " ";
+              currentResponseRef.current += data.message;
               setCurrentResponse(currentResponseRef.current.trim());
               break;
             case CHAT_RESPONSE_TYPES.STOP_THINKING:
@@ -102,9 +104,17 @@ export default function ChatArea() {
     }
   };
 
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (userQuestion.trim()) {
+      handleQuestionClick(userQuestion.trim());
+      setUserQuestion("");
+    }
+  };
+
   return (
     <div className="mx-auto p-4 bg-white rounded-lg shadow-md">
-      <h1 className="text-2xl font-bold text-center mb-4">Mock Chat with AI</h1>
+      <h1 className="text-2xl font-bold text-center mb-4">Chat with AI</h1>
       <div className="flex flex-col lg:flex-row">
         <div className="flex-1 lg:mr-4">
           <div
@@ -150,7 +160,24 @@ export default function ChatArea() {
         <div className="lg:w-1/3">
           {" "}
           {/* Set a specific width for the question selection area */}
-          <h2 className="text-lg font-semibold mb-2">Select a question:</h2>
+          <h2 className="text-lg font-semibold mb-2">
+            Select a question or type it out
+          </h2>
+          <form onSubmit={handleSubmit} className="mt-4">
+            <input
+              type="text"
+              value={userQuestion}
+              onChange={(e) => setUserQuestion(e.target.value)}
+              placeholder="Type your question..."
+              className="border border-gray-300 p-2 rounded-md w-full"
+            />
+            <button
+              type="submit"
+              className="mt-2 w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition duration-200 mb-2"
+            >
+              Ask
+            </button>
+          </form>
           <div className="space-y-2">
             {questions.map((q, index) => (
               <button
