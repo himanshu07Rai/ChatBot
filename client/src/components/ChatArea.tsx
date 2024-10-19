@@ -56,7 +56,7 @@ export default function ChatArea() {
     abortControllerRef.current = abortController;
 
     try {
-      const source = SSE("http://localhost:8000/stream", {
+      const source = SSE("https://chat-bot-server-gamma.vercel.app/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
