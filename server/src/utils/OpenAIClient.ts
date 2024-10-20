@@ -11,25 +11,21 @@ class OpenAIClient{
         this.openai = new OpenAI();
     }
 
-    async callOpenAIStreamAPI(question: string, res: Response, signal: any, outputTokenCount:{
+    async callOpenAIStreamAPI(contextWindow: { role: string; content: string }[], res: Response, signal: any, outputTokenCount:{
         count:number
     }) {
+      let aiResponse = "";
+      try {
         const stream = await this.openai.chat.completions.create({
           model: "gpt-4o-mini",
-          messages: [
-            {
-              role: "system",
-              content:
-                "You are an assistant. Respond concisely and provide answers in bullet points.",
-            },
-            { role: "user", content: question },
-          ],
+          messages: contextWindow,
           max_tokens: 100,
           stream: true,
           stop: ["###"],
         });
         for await (const chunk of stream) {
           const message = chunk.choices[0]?.delta?.content || "";
+          aiResponse += message;
           outputTokenCount.count += openaiTokenCounter.text(message, aiModel); // Count output tokens
           res.write(
             `data: ${JSON.stringify({
@@ -44,6 +40,18 @@ class OpenAIClient{
           await new Promise((resolve) => setTimeout(resolve, 100));
         }
       }
+    catch (error) {
+      console.error("OpenAI API error:", error);
+      res.write(
+        `data: ${JSON.stringify({
+          type: CHAT_RESPONSE_TYPES.AI_RESPONSE,
+          message: "I'm sorry, I couldn't understand that.",
+        })}\n\n`
+      );
+    }
+    return aiResponse;
+  }
 }
+
 
 export const openAIClient = new OpenAIClient()

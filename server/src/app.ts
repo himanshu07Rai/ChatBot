@@ -25,13 +25,13 @@ app.use(setClientCookie);
 
 const activeRequests = new Map(); // Track requests
 
+const conversationHistory = new Map();
+
 app.post("/stream", async (req:Request, res:Response) => {
   console.log("GET request received");
 
   const { question } = req.body;
   // Count tokens for the question
-  const inputTokenCount = openaiTokenCounter.text(question, aiModel);
-  console.log(`Input token count: ${inputTokenCount}`);
   const unique = req.clientId;
   console.log({ question, activeRequests });
   if (activeRequests.has(unique)) {
@@ -40,6 +40,15 @@ app.post("/stream", async (req:Request, res:Response) => {
     previousController.abort();
   }
   let outputTokenCount = { count: 0 };
+  const previousContext = conversationHistory.get(unique) || [];
+  const contextWindow = [...previousContext, { role: "user", content: question }];
+  console.log("Context window:", contextWindow);
+  const inputTokenCount = openaiTokenCounter.text(question, aiModel) + 
+                          previousContext.reduce((total:number, msg:{
+                            role:string,
+                            content:string
+                          }) => total + openaiTokenCounter.text(msg.content, aiModel), 0);
+  console.log(`Input token count: ${inputTokenCount} new`);
   try {
     const abortController = new AbortController();
     const { signal } = abortController;
@@ -64,13 +73,17 @@ app.post("/stream", async (req:Request, res:Response) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // await callMockAPI(question, res, signal);
-    await openAIClient.callOpenAIStreamAPI(question, res, signal, outputTokenCount);
+    const aiResponse = await openAIClient.callOpenAIStreamAPI(contextWindow, res, signal, outputTokenCount);
     res.write(
       `data: ${JSON.stringify({
         type: CHAT_RESPONSE_TYPES.STOP_THINKING,
         message: "### Done!",
       })}\n\n`
     );
+    conversationHistory.set(unique, [
+      ...contextWindow,
+      { role: "assistant", content: aiResponse }
+    ]);
   } catch (error) {
     console.error("Error:", error);
     res.write(
