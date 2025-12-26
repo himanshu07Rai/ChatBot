@@ -1,0 +1,19 @@
+services:
+  aichat-client:
+    container_name: aichat-clientCont
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        VITE_BACKEND_URL: http://localhost:8000
+    ports:
+      - "3001:3001"
+  aichat-server:
+    container_name: aichat-serverCont
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
