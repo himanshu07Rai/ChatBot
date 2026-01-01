@@ -3,10 +3,6 @@ import { aiModel, CHAT_RESPONSE_TYPES } from "../konstants";
 import { openaiTokenCounter } from "./openaiTokenCounter";
 import OpenAI from "openai";
 
-/**
- * OpenRouter is OpenAI-compatible.
- * We just override baseURL and API key.
- */
 class OpenRouterClient {
   openai: OpenAI;
 
@@ -20,7 +16,7 @@ class OpenRouterClient {
   }
 
   async callOpenAIStreamAPI(
-    contextWindow: { role: string; content: string }[],
+    contextWindow: OpenAI.ChatCompletionMessageParam[],
     res: Response,
     signal: AbortSignal,
     outputTokenCount: { count: number }
@@ -30,10 +26,6 @@ class OpenRouterClient {
     try {
       const stream = await this.openai.chat.completions.create({
         model: "openai/gpt-4o-mini", 
-        // examples:
-        // "openai/gpt-4o-mini"
-        // "anthropic/claude-3.5-sonnet"
-        // "google/gemini-pro-1.5"
         messages: contextWindow,
         max_tokens: 100,
         stream: true,
@@ -59,8 +51,7 @@ class OpenRouterClient {
           })}\n\n`
         );
 
-        // optional throttling (matches your OpenAI client)
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        // await new Promise((resolve) => setTimeout(resolve, 100));
       }
     } catch (error) {
       console.error("OpenRouter API error:", error);

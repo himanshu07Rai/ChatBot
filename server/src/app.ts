@@ -12,7 +12,7 @@ const app = express();
 // Use middleware
 const whitelist = process.env.WHITELIST_DOMAINS
   ? JSON.parse(process.env.WHITELIST_DOMAINS)
-  : ["http://localhost:3001", "https://chat-bot-client-two.vercel.app/"];
+  : ["http://localhost:3001", "https://chat-bot-client-two.vercel.app/", "https://aichat.himanshur.dev"];
 const corsOptions = {
   origin: whitelist,
   credentials: true,
