@@ -7,6 +7,10 @@ RUN npm install
 
 COPY . .
 
+# Accept env at build time
+ARG VITE_BACKEND_URL
+ENV VITE_BACKEND_URL=$VITE_BACKEND_URL
+
 RUN npm run build
 
 # --- Production Runner ---

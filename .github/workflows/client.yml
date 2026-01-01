@@ -30,6 +30,8 @@ jobs:
           tags: |
             ${{ env.IMAGE_NAME }}:latest
             ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          build-args: |
+            VITE_BACKEND_URL=${{ secrets.VITE_BACKEND_URL }}
 
   deploy:
     runs-on: ubuntu-latest
@@ -50,12 +52,8 @@ jobs:
             docker pull $IMAGE_NAME:latest
             docker stop chatbot-client || true
             docker rm chatbot-client || true
-            echo $PWD
-            echo "APP_ENV=${{vars.APP_ENV}}" > .chatbot-client.env
-            echo "BACKEND_URL=${{ secrets.BACKEND_URL }}" >> .chatbot-client.env
             docker run -d \
               --name chatbot-client \
-              --env-file .chatbot-client.env \
               --restart unless-stopped \
               -p 3001:3001 \
               $IMAGE_NAME:latest
