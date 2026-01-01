@@ -56,7 +56,7 @@ export default function ChatArea() {
     abortControllerRef.current = abortController;
 
     try {
-      const source = SSE(`${process.env.VITE_BACKEND_URL}/stream`, {
+      const source = SSE(`${import.meta.env.VITE_BACKEND_URL}/stream`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
