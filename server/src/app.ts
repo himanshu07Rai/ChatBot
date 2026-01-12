@@ -12,7 +12,7 @@ const app = express();
 // Use middleware
 const whitelist = process.env.WHITELIST_DOMAINS
   ? JSON.parse(process.env.WHITELIST_DOMAINS)
-  : ["http://localhost:3001", "https://chat-bot-client-two.vercel.app/", "https://aichat.himanshur.dev"];
+  : ["http://127.0.0.1:3001", "http://localhost:3001", "https://chat-bot-client-two.vercel.app/", "https://aichat.himanshur.dev"];
 const corsOptions = {
   origin: whitelist,
   credentials: true,
@@ -33,7 +33,6 @@ app.post("/stream", async (req:Request, res:Response) => {
   const { question } = req.body;
   // Count tokens for the question
   const unique = req.clientId;
-  console.log({ question, activeRequests });
   if (activeRequests.has(unique)) {
     console.log(`Aborting previous request for client: ${unique}`);
     const previousController = activeRequests.get(unique);
@@ -42,7 +41,6 @@ app.post("/stream", async (req:Request, res:Response) => {
   let outputTokenCount = { count: 0 };
   const previousContext = conversationHistory.get(unique) || [];
   const contextWindow = [...previousContext, { role: "user", content: question }];
-  console.log("Context window:", contextWindow);
   const inputTokenCount = openaiTokenCounter.text(question, aiModel) + 
                           previousContext.reduce((total:number, msg:{
                             role:string,
