@@ -25,7 +25,7 @@ class OpenRouterClient {
 
     try {
       const stream = await this.openai.chat.completions.create({
-        model: "deepcogito/cogito-v2-preview-llama-70b", 
+        model: "deepseek/deepseek-r1-0528:free", 
         messages: contextWindow,
         max_tokens: 100,
         stream: true,
