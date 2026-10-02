@@ -64,11 +64,9 @@ export default function ChatArea() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          signal: abortControllerRef.current.signal,
         },
         withCredentials: true,
         payload: JSON.stringify({ question }),
-        signal: abortController.signal,
       });
 
       if (source) {
@@ -81,6 +79,15 @@ export default function ChatArea() {
             case CHAT_RESPONSE_TYPES.AI_RESPONSE:
               setIsThinking(false);
               currentResponseRef.current += data.message;
+              setCurrentResponse(currentResponseRef.current.trim());
+              break;
+            case CHAT_RESPONSE_TYPES.ERROR:
+              // Surface the real failure, and let the trailing STOP_THINKING
+              // commit it to history like a normal reply.
+              setIsThinking(false);
+              currentResponseRef.current += `${
+                currentResponseRef.current ? "\n\n" : ""
+              }⚠️ ${data.message ?? "Something went wrong."}`;
               setCurrentResponse(currentResponseRef.current.trim());
               break;
             case CHAT_RESPONSE_TYPES.STOP_THINKING:

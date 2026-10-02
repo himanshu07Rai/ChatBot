@@ -5,14 +5,16 @@ import cookieParser from "cookie-parser";
 import { setClientCookie } from "./middlewares/setClientCookie";
 import { openaiTokenCounter } from "./utils/openaiTokenCounter";
 import { aiModel, CHAT_RESPONSE_TYPES } from "./konstants";
-import { openRouterClient } from "./utils/OpenRouterClient";
+import { openRouterClient, describeApiError } from "./utils/OpenRouterClient";
 
 const app = express();
 
 // Use middleware
+// Origins must match the browser's `Origin` header exactly, which never has a
+// trailing slash -- "https://host/" would never match and CORS would fail.
 const whitelist = process.env.WHITELIST_DOMAINS
   ? JSON.parse(process.env.WHITELIST_DOMAINS)
-  : ["http://127.0.0.1:3001", "http://localhost:3001", "https://chat-bot-client-two.vercel.app/", "https://aichat.himanshur.dev"];
+  : ["http://127.0.0.1:3001", "http://localhost:3001", "https://chat-bot-client-two.vercel.app", "https://aichat.himanshur.dev"];
 const corsOptions = {
   origin: whitelist,
   credentials: true,
@@ -86,8 +88,8 @@ app.post("/stream", async (req:Request, res:Response) => {
     console.error("Error:", error);
     res.write(
       `data: ${JSON.stringify({
-        markdown: "### Error: Could not retrieve response from AI.",
-        error,
+        type: CHAT_RESPONSE_TYPES.ERROR,
+        message: describeApiError(error),
       })}\n\n`
     );
   } finally {
