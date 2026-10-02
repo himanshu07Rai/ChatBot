@@ -53,6 +53,8 @@ jobs:
             echo $PWD
             echo "APP_ENV=${{vars.APP_ENV}}" > .chatbot-server.env
             echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}" >> .chatbot-server.env
+            echo "OPENROUTER_MODEL=${{ vars.OPENROUTER_MODEL }}" >> .chatbot-server.env
+            echo "MAX_OUTPUT_TOKENS=${{ vars.MAX_OUTPUT_TOKENS }}" >> .chatbot-server.env
             docker run -d \
               --name chatbot-server \
               --env-file .chatbot-server.env \
